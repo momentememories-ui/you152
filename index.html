@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Happy Anniversary! ❤️</title>
+    <title>Happy Anniversary❤️</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -18,7 +18,7 @@
 
         body {
             font-family: 'Kanit', sans-serif;
-            background: linear-gradient(135deg, #fff0f3 0%, #ffccd5 50%, #ffb3c1 100%);
+            background-color: #ffe6eb;
             height: 100vh;
             width: 100vw;
             overflow: hidden;
@@ -96,13 +96,20 @@
             opacity: 1;
         }
 
+        /* Background photo6.jpg for Pages 1-4 */
+        .page-scratch-bg {
+            background-image: url('photo6.jpg');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
         /* Scratch Card Area (1:1 Ratio) */
         .scratch-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 20px;
             width: 100%;
         }
 
@@ -114,7 +121,7 @@
             max-height: 85vw;
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 10px 25px rgba(255, 182, 193, 0.5);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
             background: #fff;
         }
 
@@ -138,19 +145,7 @@
             transition: opacity 0.5s ease;
         }
 
-        .scratch-instruction {
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: #7209b7;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(5px);
-            padding: 8px 24px;
-            border-radius: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-        }
-
-        /* Final Page 5 Style */
+        /* Final Page 5 Style (photo5.png) */
         .page-final {
             padding: 0;
             background-image: url('photo5.png');
@@ -176,46 +171,42 @@
     <div class="app-container">
 
         <!-- PAGE 1 -->
-        <div class="page active" id="page-1">
+        <div class="page page-scratch-bg active" id="page-1">
             <div class="scratch-wrapper">
                 <div class="scratch-area">
                     <img src="photo1.jpg" alt="Memory 1">
                     <canvas id="canvas-1"></canvas>
                 </div>
-                <div class="scratch-instruction">ลองขูดดูสิ</div>
             </div>
         </div>
 
         <!-- PAGE 2 -->
-        <div class="page" id="page-2">
+        <div class="page page-scratch-bg" id="page-2">
             <div class="scratch-wrapper">
                 <div class="scratch-area">
                     <img src="photo2.jpg" alt="Memory 2">
                     <canvas id="canvas-2"></canvas>
                 </div>
-                <div class="scratch-instruction">ลองขูดดูสิ</div>
             </div>
         </div>
 
         <!-- PAGE 3 -->
-        <div class="page" id="page-3">
+        <div class="page page-scratch-bg" id="page-3">
             <div class="scratch-wrapper">
                 <div class="scratch-area">
                     <img src="photo3.jpg" alt="Memory 3">
                     <canvas id="canvas-3"></canvas>
                 </div>
-                <div class="scratch-instruction">ลองขูดดูสิ</div>
             </div>
         </div>
 
         <!-- PAGE 4 -->
-        <div class="page" id="page-4">
+        <div class="page page-scratch-bg" id="page-4">
             <div class="scratch-wrapper">
                 <div class="scratch-area">
                     <img src="photo4.jpg" alt="Memory 4">
                     <canvas id="canvas-4"></canvas>
                 </div>
-                <div class="scratch-instruction">ลองขูดดูสิ</div>
             </div>
         </div>
 
@@ -283,7 +274,6 @@
                 if (overlayImg.complete && overlayImg.naturalWidth !== 0) {
                     ctx.drawImage(overlayImg, 0, 0, size, size);
                 } else {
-                    // Fallback background if photo.jpg isn't loaded yet
                     ctx.fillStyle = '#ffb7c5';
                     ctx.fillRect(0, 0, size, size);
                 }
@@ -316,7 +306,7 @@
                 const pos = getPos(e);
                 ctx.globalCompositeOperation = 'destination-out';
                 ctx.beginPath();
-                ctx.arc(pos.x, pos.y, 80, 0, Math.PI * 2); // Adjust brush radius for 1024x1024
+                ctx.arc(pos.x, pos.y, 80, 0, Math.PI * 2);
                 ctx.fill();
 
                 checkProgress();
@@ -382,18 +372,18 @@
                         // If Page 5 (Final Page)
                         if (nextPageNum === 5) {
                             triggerHeartBurst(40);
-                            startHeartShower(); // หัวใจลอยต่อเนื่องในหน้า 5
+                            startHeartShower();
                         }
                     }
                 }, 500);
             }
         }
 
-        // Initialize Scratch Cards with conditions
-        setupScratchCard('canvas-1', 1, false); // หน้า 1: ไม่มีหัวใจลอยขึ้นเมื่อขูดเสร็จ
-        setupScratchCard('canvas-2', 2, false); // หน้า 2: ไม่มีหัวใจ
-        setupScratchCard('canvas-3', 3, false); // หน้า 3: ไม่มีหัวใจ
-        setupScratchCard('canvas-4', 4, true);  // หน้า 4: หัวใจลอยขึ้นเมื่อขูดเสร็จ
+        // Initialize Scratch Cards
+        setupScratchCard('canvas-1', 1, false);
+        setupScratchCard('canvas-2', 2, false);
+        setupScratchCard('canvas-3', 3, false);
+        setupScratchCard('canvas-4', 4, true);
     </script>
 </body>
 </html>
