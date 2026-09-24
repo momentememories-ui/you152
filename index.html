@@ -16,17 +16,14 @@
             -webkit-user-select: none;
         }
 
-        body {
-            font-family: 'Kanit', sans-serif;
-            background-color: #ffe6eb;
-            height: 100vh;
-            width: 100vw;
+        html, body {
+            width: 100%;
+            height: 100%;
             overflow: hidden;
-            position: relative;
+            background-color: #ffe6eb;
+            font-family: 'Kanit', sans-serif;
             color: #4a0e17;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: relative;
         }
 
         /* Floating Hearts Layer */
@@ -34,8 +31,8 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             pointer-events: none;
             z-index: 99;
             overflow: hidden;
@@ -64,44 +61,31 @@
             }
         }
 
-        /* Mobile App Container */
-        .app-container {
-            width: 100%;
-            max-width: 430px;
+        /* Continuous Background Layer for Pages 1-4 (Cover Full Screen) */
+        #main-bg-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
             height: 100vh;
-            max-height: 932px;
+            background-image: url('photo6.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 1;
+            transition: opacity 0.8s ease;
+        }
+
+        /* App Container */
+        .app-container {
+            width: 100vw;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             position: relative;
             z-index: 10;
-        }
-
-        /* Page Management */
-        .page {
-            display: none;
-            width: 100%;
-            height: 100%;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-            padding: 20px;
-        }
-
-        .page.active {
-            display: flex;
-            opacity: 1;
-        }
-
-        /* Background photo6.jpg for Pages 1-4 */
-        .page-scratch-bg {
-            background-image: url('photo6.jpg');
-            background-size: contain;
-            background-position: center;
-            background-repeat: no-repeat;
         }
 
         /* Scratch Card Area (1:1 Ratio) */
@@ -111,6 +95,8 @@
             align-items: center;
             justify-content: center;
             width: 100%;
+            transition: opacity 0.6s ease;
+            opacity: 1;
         }
 
         .scratch-area {
@@ -121,7 +107,7 @@
             max-height: 85vw;
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
             background: #fff;
         }
 
@@ -132,6 +118,7 @@
             position: absolute;
             top: 0;
             left: 0;
+            transition: opacity 0.5s ease;
         }
 
         .scratch-area canvas {
@@ -142,18 +129,28 @@
             height: 100%;
             cursor: pointer;
             touch-action: none;
-            transition: opacity 0.5s ease;
         }
 
-        /* Final Page 5 Style (photo5.png) */
-        .page-final {
-            padding: 0;
+        /* Final Page 5 Style (Full Screen photo5.png) */
+        #page-final {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
             background-image: url('photo5.png');
-            background-size: contain;
+            background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            width: 100%;
-            height: 100%;
+            z-index: 20;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease;
+        }
+
+        #page-final.active {
+            opacity: 1;
+            pointer-events: auto;
         }
     </style>
 </head>
@@ -162,61 +159,29 @@
     <!-- Floating Hearts Layer -->
     <div id="heart-container"></div>
 
+    <!-- Static Background for Scratch Pages -->
+    <div id="main-bg-layer"></div>
+
     <!-- Audio Element -->
     <audio id="bg-music" loop preload="auto">
         <source src="song.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- Main App Frame -->
+    <!-- Main Scratch Frame -->
     <div class="app-container">
-
-        <!-- PAGE 1 -->
-        <div class="page page-scratch-bg active" id="page-1">
-            <div class="scratch-wrapper">
-                <div class="scratch-area">
-                    <img src="photo1.jpg" alt="Memory 1">
-                    <canvas id="canvas-1"></canvas>
-                </div>
+        <div class="scratch-wrapper" id="scratch-wrapper">
+            <div class="scratch-area">
+                <img id="reveal-img" src="photo1.jpg" alt="Memory">
+                <canvas id="scratch-canvas"></canvas>
             </div>
         </div>
-
-        <!-- PAGE 2 -->
-        <div class="page page-scratch-bg" id="page-2">
-            <div class="scratch-wrapper">
-                <div class="scratch-area">
-                    <img src="photo2.jpg" alt="Memory 2">
-                    <canvas id="canvas-2"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- PAGE 3 -->
-        <div class="page page-scratch-bg" id="page-3">
-            <div class="scratch-wrapper">
-                <div class="scratch-area">
-                    <img src="photo3.jpg" alt="Memory 3">
-                    <canvas id="canvas-3"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- PAGE 4 -->
-        <div class="page page-scratch-bg" id="page-4">
-            <div class="scratch-wrapper">
-                <div class="scratch-area">
-                    <img src="photo4.jpg" alt="Memory 4">
-                    <canvas id="canvas-4"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- PAGE 5 (Full Screen photo5.png) -->
-        <div class="page page-final" id="page-5"></div>
-
     </div>
 
+    <!-- PAGE 5 (Full Screen photo5.png) -->
+    <div id="page-final"></div>
+
     <script>
-        // Automatic Music Attempt
+        // Audio Setup
         const music = document.getElementById('bg-music');
         window.addEventListener('DOMContentLoaded', () => {
             music.play().catch(() => {
@@ -238,9 +203,7 @@
             heart.style.fontSize = (Math.random() * 15 + 20) + 'px';
             heartContainer.appendChild(heart);
 
-            setTimeout(() => {
-                heart.remove();
-            }, 5000);
+            setTimeout(() => { heart.remove(); }, 5000);
         }
 
         let heartInterval = null;
@@ -256,134 +219,136 @@
             }
         }
 
-        // Preload photo.jpg for scratch layer
+        // Photos Config
+        const photos = ['photo1.jpg', 'photo2.jpg', 'photo3.jpg', 'photo4.jpg'];
+        let currentStep = 0;
+
+        const scratchWrapper = document.getElementById('scratch-wrapper');
+        const revealImg = document.getElementById('reveal-img');
+        const canvas = document.getElementById('scratch-canvas');
+        const ctx = canvas.getContext('2d');
+        const size = 1024;
+
+        canvas.width = size;
+        canvas.height = size;
+
         const overlayImg = new Image();
         overlayImg.src = 'photo.jpg';
 
-        // Scratch Card Logic Setup
-        function setupScratchCard(canvasId, pageNum, hasHeartsOnComplete) {
-            const canvas = document.getElementById(canvasId);
-            const ctx = canvas.getContext('2d');
-            const size = 1024; // Resolution 1024x1024 (1:1)
+        function resetCanvas() {
+            ctx.globalCompositeOperation = 'source-over';
+            if (overlayImg.complete && overlayImg.naturalWidth !== 0) {
+                ctx.drawImage(overlayImg, 0, 0, size, size);
+            } else {
+                ctx.fillStyle = '#ffb7c5';
+                ctx.fillRect(0, 0, size, size);
+            }
+        }
 
-            canvas.width = size;
-            canvas.height = size;
+        overlayImg.addEventListener('load', resetCanvas);
 
-            // Draw photo.jpg over canvas
-            function drawCoverImage() {
-                if (overlayImg.complete && overlayImg.naturalWidth !== 0) {
-                    ctx.drawImage(overlayImg, 0, 0, size, size);
-                } else {
-                    ctx.fillStyle = '#ffb7c5';
-                    ctx.fillRect(0, 0, size, size);
-                }
+        let isDrawing = false;
+        let completed = false;
+
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+
+        function scratch(e) {
+            if (!isDrawing || completed) return;
+            if (e.cancelable) e.preventDefault();
+
+            const pos = getPos(e);
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, 80, 0, Math.PI * 2);
+            ctx.fill();
+
+            checkProgress();
+        }
+
+        function checkProgress() {
+            if (completed) return;
+
+            const imgData = ctx.getImageData(0, 0, size, size);
+            const pixels = imgData.data;
+            let transparentPixels = 0;
+
+            for (let i = 3; i < pixels.length; i += 64) {
+                if (pixels[i] === 0) transparentPixels++;
             }
 
-            drawCoverImage();
-            overlayImg.addEventListener('load', drawCoverImage);
+            const totalSampled = (pixels.length / 4) / 16;
+            const percent = (transparentPixels / totalSampled) * 100;
 
-            let isDrawing = false;
-            let completed = false;
+            if (percent >= 90) {
+                completed = true;
+                ctx.clearRect(0, 0, size, size);
 
-            function getPos(e) {
-                const rect = canvas.getBoundingClientRect();
-                const scaleX = canvas.width / rect.width;
-                const scaleY = canvas.height / rect.height;
-
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-                return {
-                    x: (clientX - rect.left) * scaleX,
-                    y: (clientY - rect.top) * scaleY
-                };
-            }
-
-            function scratch(e) {
-                if (!isDrawing || completed) return;
-                if (e.cancelable) e.preventDefault();
-
-                const pos = getPos(e);
-                ctx.globalCompositeOperation = 'destination-out';
-                ctx.beginPath();
-                ctx.arc(pos.x, pos.y, 80, 0, Math.PI * 2);
-                ctx.fill();
-
-                checkProgress();
-            }
-
-            function checkProgress() {
-                if (completed) return;
-
-                const imgData = ctx.getImageData(0, 0, size, size);
-                const pixels = imgData.data;
-                let transparentPixels = 0;
-                const totalPixels = pixels.length / 4;
-
-                for (let i = 3; i < pixels.length; i += 64) {
-                    if (pixels[i] === 0) {
-                        transparentPixels++;
-                    }
-                }
-
-                const sampledTotal = totalPixels / 16;
-                const percent = (transparentPixels / sampledTotal) * 100;
-
-                if (percent >= 90) {
-                    completed = true;
-                    ctx.clearRect(0, 0, size, size);
-
-                    if (hasHeartsOnComplete) {
-                        triggerHeartBurst(35);
-                    }
-
+                if (currentStep === 3) {
+                    // Page 4 Completed
+                    triggerHeartBurst(35);
+                    
+                    // Delay 5 seconds on Page 4 before moving to Page 5
                     setTimeout(() => {
-                        goToPage(pageNum + 1);
-                    }, 1500);
+                        showFinalPage();
+                    }, 5000);
+                } else {
+                    // Pages 1-3 Completed: Switch smoothly to next photo
+                    setTimeout(() => {
+                        nextPhoto();
+                    }, 1200);
                 }
             }
-
-            // Event Listeners
-            canvas.addEventListener('mousedown', (e) => { isDrawing = true; scratch(e); });
-            canvas.addEventListener('mousemove', scratch);
-            canvas.addEventListener('mouseup', () => isDrawing = false);
-            canvas.addEventListener('mouseleave', () => isDrawing = false);
-
-            canvas.addEventListener('touchstart', (e) => { isDrawing = true; scratch(e); }, { passive: false });
-            canvas.addEventListener('touchmove', scratch, { passive: false });
-            canvas.addEventListener('touchend', () => isDrawing = false);
         }
 
-        // Page Navigation Controller
-        function goToPage(nextPageNum) {
-            const currentPage = document.querySelector('.page.active');
-            const nextPage = document.getElementById(`page-${nextPageNum}`);
+        function nextPhoto() {
+            scratchWrapper.style.opacity = '0';
 
-            if (currentPage) {
-                currentPage.style.opacity = '0';
-                setTimeout(() => {
-                    currentPage.classList.remove('active');
-                    if (nextPage) {
-                        nextPage.classList.add('active');
-                        setTimeout(() => {
-                            nextPage.style.opacity = '1';
-                        }, 50);
-
-                        // If Page 5 (Final Page)
-                        if (nextPageNum === 5) {
-                            triggerHeartBurst(40);
-                            startHeartShower();
-                        }
-                    }
-                }, 500);
-            }
+            setTimeout(() => {
+                currentStep++;
+                revealImg.src = photos[currentStep];
+                resetCanvas();
+                completed = false;
+                
+                scratchWrapper.style.opacity = '1';
+            }, 600);
         }
 
-        // Initialize Scratch Cards
-        setupScratchCard('canvas-1', 1, false);
-        setupScratchCard('canvas-2', 2, false);
-        setupScratchCard('canvas-3', 3, false);
-        setupScratchCard('canvas-4', 4, true);
+        function showFinalPage() {
+            document.getElementById('main-bg-layer').style.opacity = '0';
+            scratchWrapper.style.opacity = '0';
+            
+            setTimeout(() => {
+                const finalPage = document.getElementById('page-final');
+                finalPage.classList.add('active');
+                triggerHeartBurst(40);
+                startHeartShower();
+            }, 800);
+        }
+
+        // Scratch Events
+        canvas.addEventListener('mousedown', (e) => { isDrawing = true; scratch(e); });
+        canvas.addEventListener('mousemove', scratch);
+        canvas.addEventListener('mouseup', () => isDrawing = false);
+        canvas.addEventListener('mouseleave', () => isDrawing = false);
+
+        canvas.addEventListener('touchstart', (e) => { isDrawing = true; scratch(e); }, { passive: false });
+        canvas.addEventListener('touchmove', scratch, { passive: false });
+        canvas.addEventListener('touchend', () => isDrawing = false);
+
+        // Initial Canvas Load
+        resetCanvas();
     </script>
 </body>
 </html>
