@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Happy Anniversary! ❤️</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&family=Mali:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: 'Prompt', 'Mali', sans-serif;
+            background: linear-gradient(135deg, #ffdeeb 0%, #ffafcc 50%, #f72585 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            color: #4a0e17;
+        }
+
+        /* Floating Hearts Layer */
+        #heart-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99;
+            overflow: hidden;
+        }
+
+        .floating-heart {
+            position: absolute;
+            bottom: -50px;
+            font-size: 24px;
+            animation: floatUp linear forwards;
+            opacity: 0.9;
+            filter: drop-shadow(0 2px 5px rgba(255, 105, 180, 0.4));
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(0.8) rotate(0deg);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-50vh) scale(1.2) rotate(15deg);
+            }
+            100% {
+                transform: translateY(-110vh) scale(1) rotate(-15deg);
+                opacity: 0;
+            }
+        }
+
+        /* Music Controls */
+        .music-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border: 2px solid #ff85a2;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 75, 110, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .music-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .music-btn.playing {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 75, 110, 0.6); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 75, 110, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 75, 110, 0); }
+        }
+
+        /* Container */
+        .card-container {
+            width: 90%;
+            max-width: 420px;
+            height: 600px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(186, 24, 75, 0.25),
+                        0 0 0 8px rgba(255, 255, 255, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header {
+            text-align: center;
+            width: 100%;
+        }
+
+        .header h1 {
+            font-family: 'Mali', cursive;
+            color: #d81159;
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .header p {
+            font-size: 0.9rem;
+            color: #8f2d56;
+        }
+
+        /* Page Management */
+        .page {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .page.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* Scratch Card Area */
+        .scratch-area {
+            position: relative;
+            width: 300px;
+            height: 400px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            background: #fff;
+        }
+
+        .scratch-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .scratch-area canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            touch-action: none;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Final Page 5 Card Style */
+        .final-card-area {
+            position: relative;
+            width: 100%;
+            height: 460px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .final-card-area img {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain; /* ห้ามบีบรูป */
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(216, 17, 89, 0.2);
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .footer-note {
+            font-size: 0.85rem;
+            color: #b5179e;
+            font-weight: 500;
+            height: 24px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Start Overlay */
+        #start-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(255, 175, 204, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #start-overlay h2 {
+            font-family: 'Mali', cursive;
+            font-size: 2rem;
+            color: #d81159;
+            margin-bottom: 12px;
+        }
+
+        #start-overlay p {
+            font-size: 1.1rem;
+            color: #5c062c;
+            background: #ffffff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Floating Hearts Layer -->
+    <div id="heart-container"></div>
+
+    <!-- Background Music -->
+    <audio id="bg-music" loop preload="auto">
+        <source src="song.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Music Control Button -->
+    <div class="music-btn" id="music-toggle" title="เปิด/ปิดเพลง">🎵</div>
+
+    <!-- Click to Start Screen (Autoplay Fix) -->
+    <div id="start-overlay">
+        <h2>💖 Happy Anniversary 💖</h2>
+        <p>แตะตรงไหนก็ได้เพื่อเริ่มต้น ✨</p>
+    </div>
+
+    <!-- Main Card -->
+    <div class="card-container">
+        
+        <!-- PAGE 1 -->
+        <div class="page active" id="page-1">
+            <div class="header">
+                <h1>รูปที่ 1/4 ❤️</h1>
+                <p>ลองใช้เสน้้วหรือเมาส์ขูดดูสิจ๊ะ...</p>
+            </div>
+            <div class="scratch-area">
+                <img src="photo1.jpg" alt="Memory 1">
+                <canvas id="canvas-1"></canvas>
+            </div>
+            <div class="footer-note" id="status-1">ขูดให้ถึง 95% เพื่อดูรูปถัดไป</div>
+        </div>
+
+        <!-- PAGE 2 -->
+        <div class="page" id="page-2">
+            <div class="header">
+                <h1>รูปที่ 2/4 💖</h1>
+                <p>ขูดๆ อีกนิดนะคนดี...</p>
+            </div>
+            <div class="scratch-area">
+                <img src="photo2.jpg" alt="Memory 2">
+                <canvas id="canvas-2"></canvas>
+            </div>
+            <div class="footer-note" id="status-2">ขูดให้ถึง 95% เพื่อดูรูปถัดไป</div>
+        </div>
+
+        <!-- PAGE 3 -->
+        <div class="page" id="page-3">
+            <div class="header">
+                <h1>รูปที่ 3/4 💕</h1>
+                <p>เกือบถึงความลับสุดท้ายแล้ว...</p>
+            </div>
+            <div class="scratch-area">
+                <img src="photo3.jpg" alt="Memory 3">
+                <canvas id="canvas-3"></canvas>
+            </div>
+            <div class="footer-note" id="status-3">ขูดให้ถึง 95% เพื่อดูรูปถัดไป</div>
+        </div>
+
+        <!-- PAGE 4 -->
+        <div class="page" id="page-4">
+            <div class="header">
+                <h1>รูปที่ 4/4 💗</h1>
+                <p>ภาพสุดท้ายแล้วนะ...</p>
+            </div>
+            <div class="scratch-area">
+                <img src="photo4.jpg" alt="Memory 4">
+                <canvas id="canvas-4"></canvas>
+            </div>
+            <div class="footer-note" id="status-4">ขูดให้ถึง 95% เพื่อดูรูปถัดไป</div>
+        </div>
+
+        <!-- PAGE 5 -->
+        <div class="page" id="page-5">
+            <div class="header">
+                <h1>ข้อความจากใจ 💌</h1>
+            </div>
+            <div class="final-card-area">
+                <img src="photo5.png" alt="การ์ดข้อความวันครบรอบ">
+            </div>
+            <div class="footer-note">รักเธอนะครับ ❤️</div>
+        </div>
+
+    </div>
+
+    <script>
+        // Music Controller
+        const music = document.getElementById('bg-music');
+        const musicBtn = document.getElementById('music-toggle');
+        const startOverlay = document.getElementById('start-overlay');
+        let isPlaying = false;
+
+        function toggleMusic() {
+            if (isPlaying) {
+                music.pause();
+                musicBtn.classList.remove('playing');
+                musicBtn.textContent = '🔇';
+                isPlaying = false;
+            } else {
+                music.play().then(() => {
+                    musicBtn.classList.add('playing');
+                    musicBtn.textContent = '🎵';
+                    isPlaying = true;
+                }).catch(() => {});
+            }
+        }
+
+        musicBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleMusic();
+        });
+
+        startOverlay.addEventListener('click', () => {
+            startOverlay.style.display = 'none';
+            toggleMusic();
+        });
+
+        // Floating Hearts Generator
+        const heartContainer = document.getElementById('heart-container');
+        const heartEmojis = ['❤️', '💖', '💗', '💓', '💕', '🌸', '✨'];
+
+        function spawnHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('floating-heart');
+            heart.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 2 + 3) + 's';
+            heart.style.fontSize = (Math.random() * 15 + 20) + 'px';
+            heartContainer.appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 5000);
+        }
+
+        let heartInterval = null;
+        function startHeartShower() {
+            if (!heartInterval) {
+                heartInterval = setInterval(spawnHeart, 300);
+            }
+        }
+
+        function triggerHeartBurst(count = 25) {
+            for (let i = 0; i < count; i++) {
+                setTimeout(spawnHeart, i * 80);
+            }
+        }
+
+        // Scratch Card Logic Setup
+        function setupScratchCard(canvasId, pageNum, hasHeartsOnComplete) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const width = 300;
+            const height = 400;
+
+            canvas.width = width;
+            canvas.height = height;
+
+            // Fill Scratch Layer (Silver-Pink Theme)
+            ctx.fillStyle = '#ffb7c5';
+            ctx.fillRect(0, 0, width, height);
+
+            // Pattern design on scratch mask
+            ctx.fillStyle = '#ff85a2';
+            ctx.font = '20px Mali';
+            ctx.textAlign = 'center';
+            ctx.fillText('✨ ขูดตรงนี้เลย ✨', width / 2, height / 2);
+
+            let isDrawing = false;
+            let completed = false;
+
+            function getPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return {
+                    x: clientX - rect.left,
+                    y: clientY - rect.top
+                };
+            }
+
+            function scratch(e) {
+                if (!isDrawing || completed) return;
+                e.preventDefault();
+
+                const pos = getPos(e);
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, 28, 0, Math.PI * 2);
+                ctx.fill();
+
+                checkProgress();
+            }
+
+            function checkProgress() {
+                if (completed) return;
+
+                // Sample pixels for performance
+                const imgData = ctx.getImageData(0, 0, width, height);
+                const pixels = imgData.data;
+                let transparentPixels = 0;
+                const totalPixels = pixels.length / 4;
+
+                for (let i = 3; i < pixels.length; i += 32) {
+                    if (pixels[i] === 0) {
+                        transparentPixels++;
+                    }
+                }
+
+                const sampledTotal = totalPixels / 8;
+                const percent = (transparentPixels / sampledTotal) * 100;
+
+                if (percent >= 95) {
+                    completed = true;
+                    // Clear canvas completely
+                    ctx.clearRect(0, 0, width, height);
+                    
+                    const statusText = document.getElementById(`status-${pageNum}`);
+                    if (statusText) statusText.textContent = '🎉 ยอดเยี่ยมมาก! กำลังไปหน้าถัดไป...';
+
+                    // Trigger Hearts Effect
+                    if (hasHeartsOnComplete) {
+                        triggerHeartBurst(30);
+                    }
+
+                    // Delay 3 seconds before next page
+                    setTimeout(() => {
+                        goToPage(pageNum + 1);
+                    }, 3000);
+                }
+            }
+
+            // Event Listeners
+            canvas.addEventListener('mousedown', (e) => { isDrawing = true; scratch(e); });
+            canvas.addEventListener('mousemove', scratch);
+            canvas.addEventListener('mouseup', () => isDrawing = false);
+            canvas.addEventListener('mouseleave', () => isDrawing = false);
+
+            canvas.addEventListener('touchstart', (e) => { isDrawing = true; scratch(e); }, { passive: false });
+            canvas.addEventListener('touchmove', scratch, { passive: false });
+            canvas.addEventListener('touchend', () => isDrawing = false);
+        }
+
+        // Navigation Controller
+        function goToPage(nextPageNum) {
+            const currentPage = document.querySelector('.page.active');
+            const nextPage = document.getElementById(`page-${nextPageNum}`);
+
+            if (currentPage) {
+                currentPage.style.opacity = '0';
+                setTimeout(() => {
+                    currentPage.classList.remove('active');
+                    if (nextPage) {
+                        nextPage.classList.add('active');
+                        setTimeout(() => {
+                            nextPage.style.opacity = '1';
+                        }, 50);
+
+                        // If Page 5 (Final Page)
+                        if (nextPageNum === 5) {
+                            triggerHeartBurst(40);
+                            startHeartShower(); // ลอยหัวใจต่อเนื่องในหน้าที่ 5
+                        }
+                    }
+                }, 500);
+            }
+        }
+
+        // Initialize All Scratch Cards
+        setupScratchCard('canvas-1', 1, true);  // หน้า 1: หัวใจลอย
+        setupScratchCard('canvas-2', 2, false); // หน้า 2: ไม่มีหัวใจ
+        setupScratchCard('canvas-3', 3, false); // หน้า 3: ไม่มีหัวใจ
+        setupScratchCard('canvas-4', 4, true);  // หน้า 4: หัวใจลอย
+    </script>
+</body>
+</html>
