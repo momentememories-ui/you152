@@ -18,7 +18,7 @@
 
         body {
             font-family: 'Kanit', sans-serif;
-            background: linear-gradient(135deg, #ffdeeb 0%, #ffafcc 50%, #f72585 100%);
+            background: linear-gradient(135deg, #fff0f3 0%, #ffccd5 50%, #ffb3c1 100%);
             height: 100vh;
             width: 100vw;
             overflow: hidden;
@@ -64,7 +64,7 @@
             }
         }
 
-        /* Mobile App Container (No white border/card background) */
+        /* Mobile App Container */
         .app-container {
             width: 100%;
             max-width: 430px;
@@ -96,22 +96,25 @@
             opacity: 1;
         }
 
-        /* Scratch Card Area */
+        /* Scratch Card Area (1:1 Ratio) */
         .scratch-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 16px;
+            gap: 20px;
+            width: 100%;
         }
 
         .scratch-area {
             position: relative;
-            width: 300px;
-            height: 400px;
+            width: 320px;
+            height: 320px;
+            max-width: 85vw;
+            max-height: 85vw;
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 25px rgba(255, 182, 193, 0.5);
             background: #fff;
         }
 
@@ -138,16 +141,16 @@
         .scratch-instruction {
             font-size: 1.1rem;
             font-weight: 500;
-            color: #5c062c;
+            color: #7209b7;
             text-align: center;
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(5px);
-            padding: 8px 20px;
+            padding: 8px 24px;
             border-radius: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
         }
 
-        /* Final Page 5 Style (Full Screen Background) */
+        /* Final Page 5 Style */
         .page-final {
             padding: 0;
             background-image: url('photo5.png');
@@ -164,7 +167,7 @@
     <!-- Floating Hearts Layer -->
     <div id="heart-container"></div>
 
-    <!-- Audio Element (Auto-played secretly if needed) -->
+    <!-- Audio Element -->
     <audio id="bg-music" loop preload="auto">
         <source src="song.mp3" type="audio/mpeg">
     </audio>
@@ -226,7 +229,6 @@
         const music = document.getElementById('bg-music');
         window.addEventListener('DOMContentLoaded', () => {
             music.play().catch(() => {
-                // If browser blocks autoplay, play on first user interaction
                 document.addEventListener('touchstart', () => music.play(), { once: true });
                 document.addEventListener('click', () => music.play(), { once: true });
             });
@@ -263,30 +265,47 @@
             }
         }
 
+        // Preload photo.jpg for scratch layer
+        const overlayImg = new Image();
+        overlayImg.src = 'photo.jpg';
+
         // Scratch Card Logic Setup
         function setupScratchCard(canvasId, pageNum, hasHeartsOnComplete) {
             const canvas = document.getElementById(canvasId);
             const ctx = canvas.getContext('2d');
-            const width = 300;
-            const height = 400;
+            const size = 1024; // Resolution 1024x1024 (1:1)
 
-            canvas.width = width;
-            canvas.height = height;
+            canvas.width = size;
+            canvas.height = size;
 
-            // Fill Scratch Layer (Silver-Pink Theme)
-            ctx.fillStyle = '#ffb7c5';
-            ctx.fillRect(0, 0, width, height);
+            // Draw photo.jpg over canvas
+            function drawCoverImage() {
+                if (overlayImg.complete && overlayImg.naturalWidth !== 0) {
+                    ctx.drawImage(overlayImg, 0, 0, size, size);
+                } else {
+                    // Fallback background if photo.jpg isn't loaded yet
+                    ctx.fillStyle = '#ffb7c5';
+                    ctx.fillRect(0, 0, size, size);
+                }
+            }
+
+            drawCoverImage();
+            overlayImg.addEventListener('load', drawCoverImage);
 
             let isDrawing = false;
             let completed = false;
 
             function getPos(e) {
                 const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+
                 const clientX = e.touches ? e.touches[0].clientX : e.clientX;
                 const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
                 return {
-                    x: clientX - rect.left,
-                    y: clientY - rect.top
+                    x: (clientX - rect.left) * scaleX,
+                    y: (clientY - rect.top) * scaleY
                 };
             }
 
@@ -297,7 +316,7 @@
                 const pos = getPos(e);
                 ctx.globalCompositeOperation = 'destination-out';
                 ctx.beginPath();
-                ctx.arc(pos.x, pos.y, 28, 0, Math.PI * 2);
+                ctx.arc(pos.x, pos.y, 80, 0, Math.PI * 2); // Adjust brush radius for 1024x1024
                 ctx.fill();
 
                 checkProgress();
@@ -306,26 +325,26 @@
             function checkProgress() {
                 if (completed) return;
 
-                const imgData = ctx.getImageData(0, 0, width, height);
+                const imgData = ctx.getImageData(0, 0, size, size);
                 const pixels = imgData.data;
                 let transparentPixels = 0;
                 const totalPixels = pixels.length / 4;
 
-                for (let i = 3; i < pixels.length; i += 32) {
+                for (let i = 3; i < pixels.length; i += 64) {
                     if (pixels[i] === 0) {
                         transparentPixels++;
                     }
                 }
 
-                const sampledTotal = totalPixels / 8;
+                const sampledTotal = totalPixels / 16;
                 const percent = (transparentPixels / sampledTotal) * 100;
 
                 if (percent >= 90) {
                     completed = true;
-                    ctx.clearRect(0, 0, width, height);
+                    ctx.clearRect(0, 0, size, size);
 
                     if (hasHeartsOnComplete) {
-                        triggerHeartBurst(30);
+                        triggerHeartBurst(35);
                     }
 
                     setTimeout(() => {
@@ -363,18 +382,18 @@
                         // If Page 5 (Final Page)
                         if (nextPageNum === 5) {
                             triggerHeartBurst(40);
-                            startHeartShower();
+                            startHeartShower(); // หัวใจลอยต่อเนื่องในหน้า 5
                         }
                     }
                 }, 500);
             }
         }
 
-        // Initialize Scratch Cards
-        setupScratchCard('canvas-1', 1, true);
-        setupScratchCard('canvas-2', 2, false);
-        setupScratchCard('canvas-3', 3, false);
-        setupScratchCard('canvas-4', 4, true);
+        // Initialize Scratch Cards with conditions
+        setupScratchCard('canvas-1', 1, false); // หน้า 1: ไม่มีหัวใจลอยขึ้นเมื่อขูดเสร็จ
+        setupScratchCard('canvas-2', 2, false); // หน้า 2: ไม่มีหัวใจ
+        setupScratchCard('canvas-3', 3, false); // หน้า 3: ไม่มีหัวใจ
+        setupScratchCard('canvas-4', 4, true);  // หน้า 4: หัวใจลอยขึ้นเมื่อขูดเสร็จ
     </script>
 </body>
 </html>
